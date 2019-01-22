@@ -1,0 +1,143 @@
+UI自动化：
+	--选择界面元素
+	--操作界面元素
+		--输入操作：点击
+		输入文字、拖拽等
+		--输出操作：获取元素的各种元素
+	--根据界面上获取的数据进行分析和处理
+	
+最重要的2个类：
+WebDriver：操作整个浏览器和当前整个页面
+：选择界面元素（根据id）
+打开网址（get方法）
+回退
+前进
+刷新网页
+获取、改变浏览器大小、关闭浏览器、截屏（png）
+
+WebElement
+	--根据id选择元素返回的就是webelement对象
+	--可以操作web元素，点击元素、输入字符、获取元素坐标、尺寸、文本内容
+	
+
+
+--通过id选择元素
+	-- id是DOM中唯一标志这个元素的属性
+	-- 查找的效率最高
+	--写法1
+		element = driver.find_element_by_id('kw')
+	--写法2
+		-- from selenium.webdriver.common.by import By
+		element = driver.find_element(by
+		=By.ID, value = 'kw')
+	-- 没有找到
+	selenium.common.exceptions.NoSuchElementException
+	
+--text属性
+	-- 显示该元素在web页面显示出来的文本内容
+	-- 如果是hide属性，text的内容不会显示出来
+	
+-- get_attribute 获取属性
+	-- 作为检查点，判断网址是否正确
+	-- ele = driver.find_element_by_id('baidulink')
+	print(ele.get_attribute('href'))
+	-- get_attribute('style')
+
+	-- ele.get_attribute('outerHTML')
+		-- 获取该元素对应HTML源代码（整个块）
+
+	-- ele.get_attribute('innerHTML')
+		-- 获取该元素的内部部分的HTML源代码
+	-- 获取HTML的作用：方便定位问题
+
+BeautifulSoup4
+	--很好地处理HTML格式的字符串
+	--从HTML、xml文件中提取数据的python库。
+	第三方库，需要安装 pip install beautifulSoup4 -i https://pypi.doyban.com/simple/  # -i指定数据源，可以不指定，大部分时候可以下载
+	pip install html5lib
+
+	bs4内置HTML解析的引擎（库，兼容性不太好），而html5lib对HTML的兼容性比较好	
+	bs4 依赖html5lib，使用的时候导入bs4就可以了	
+	
+	--- BeautifulSoup4用法：
+		-- 参数是符合HTML格式的字符串
+		-- with open（‘bs1.html’，encoding='utf8'） as f:
+			html_doc = f.read()
+		--导入：
+		from bs4 import BeautifulSoup
+		soup = BeautifulSoup(html_doc, 'html5lib')
+		--查找html元素用find方法，参数为标签。如果有多个标签满足，找到的是第一个，返回的是tag类型的实例对象，不是字符串，但是打印出来显示的是一串字符串。
+		soup.find('title')
+		
+		-- tag类型
+			-- tag.name获取标签的名字，
+			--如<title></title>，得到的就是  title
+			--tag.string获取文本内容
+	
+		--soup.title.get_text（）也可以获取文本内容
+		
+		--soup.title.parent 获取title标签的上层HTML节点，也是一个tag实例
+		-- print（soup.title.parent）打印的是父节点的整个html内容
+		
+		--tag实例，包含name、string属性，get_text()方法
+			
+		--BeautifulSoup 获取属性的值
+			-- 获取第一个<div>元素的id属性的值
+			print(soup.div['id'])
+			获取第一个<p>元素的style属性的值
+			print(soup.p['style'])
+		
+		--获取所有的元素find_all()
+			--soup.find_all('p')获取所有<p>元素
+			--返回的是一个list列表
+			--获取列表里第二个元素的class属性
+			soup.find_all('p')[1]['class']
+			
+			--class属性返回的值都是列表，因为class可以有多个值，当存在多个值的时候，会放在列表里
+			
+		--根据元素的属性找到元素
+		soup.find('a', id='link3')
+		
+		--如果在某个元素里面找，先获取这个元素的tag，把这个tag赋值给一个变量，再通过变量.find_all方法找
+		baiduDiv = soup.find('div',id='d1')
+		print(baiduDiv.find_all('a'))
+			
+		
+	
+
+
+--- 通过name选择元素
+	--find_element_by_name name属性不一定唯一，但大多数时候唯一，多个相同时返回第一个
+	-- 找到所有的同名元素，find_elements_by_name;如果找不到，不会报错，会返回空列表，可用于判断某个东西是否存在
+	
+---根据class选择元素
+	-- 往往叫class的元素有很多个，find_elements_by_class_name,往往用find elements，选择多个
+
+--- 根据tag名字选择元素
+	-- driver.find_element_by_tag_name('iframe')
+****************27
+	
+源代码：
+ele = driver.find_element_by_id('food')
+
+foodText = ele.get_attribute('innerHTML')
+ret1 = foodText.split('</span>')[1]
+ret2 = ret1.split('“')[1]
+print(ret2)
+driver.quit()
+
+
+eles = driver.find_elements_by_name('button')
+for ele in eles:
+	print(ele.text)
+
+	
+	file:///C:/Users/wiki/Desktop/wyy/selenium/test2/s1.html
+	
+-- HTML属性，字符串可以用双引号，也可以用单引号
+-- pip安装的时候，从cmd中使用
+-- beautiful soup不一定非要和selenium搭配使用
+
+
+song
+

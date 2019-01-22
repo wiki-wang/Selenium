@@ -1,0 +1,193 @@
+Xpath
+	--XML Path Language
+	--是W3C(World Wide Web Consortium)定义的用来
+	在xml文档中选择节点的语言
+	--主流浏览器也支持XPath语法（目前有1. 和2.版本，浏览器主要支持1. 版本）
+		--CSS：所有浏览器都支持
+		--XPath：有的浏览器不支持，此时seleni会使用自己的语法去支持
+	--CSS选择器可以完成80-90%的选择
+		--某些场景xpath更方便，且有些公司已经在用xpath
+		--Appinium某些语法只支持xpath，不支持css
+
+
+验证：
+	CSS：Console：$$('input#kw')
+	xpath:Console:$x("//input[@id='kw']")
+
+查看xml根节点：
+	$x('/')  --选中整个document
+	$x('/html')  --表示根节点下面的html节点
+	$x('/html/body')	--根节点下的html下的body节点
+		--类似于文件系统中的绝对路径
+		-- / 类似于css中的 >
+		
+	ele = driver.find_elements_by_xpath('/html/body/div')
+
+
+	整个HTML中的所有<span>
+	XPath:
+	CSS:span
+
+当前节点概念：
+	--一开始，当前节点是根节点，根节点下面通常只有一个HTML节点
+	Console:$x('span')	--当前节点根节点下找不到span，只有html节点
+	
+	--不管在什么位置，都要找到span节点：//span
+	--// 符号的作用
+	表示 从当前节点开始 寻找所有的后代元素，不管它在什么位置
+	
+	--一开始，当前节点在根节点，所以//表示在根节点的范围内，寻找所有的后代元素，不管它在什么位置。
+	//span 	--寻找所有的span
+	//option  --寻找所有的option
+	如果当前节点不是根节点，也希望寻找所有的span呢？
+	
+	//div	--选择整个文档范围内的所有的div
+	//div//p 
+		--CSS： div p	--选择所有div节点里面的所有p节点，p节点不一定要是直接子节点
+	//div/p
+		--div里面的直接子节点p
+	//body/p	
+		--p必须是body的直接子节点
+		--CSS：body > p
+
+通配符：*
+	-- 可以匹配任何类型的节点
+	--//div/*	--所有div下面的直接子节点
+	--//footer/*	--footer下面的直接子节点
+	--//footer//*	--footer下面的所有节点，不管是不是直接子节点
+	
+根据属性选择
+	//* --选择根节点下面的任何子节点
+	[]  -- 选择属性，属性名前面一定要加上@，属性值一定要有引号
+	//*[@style]		
+		--选择所有具有style属性的元素
+		--CSS：*[style]
+	//p[@spec='len2']		
+		--选择所有的p元素，且p必须具有spec属性，且spec的值必须为len2
+		--css: P[spec='len2']
+			--css中如果没有空格或者特殊字符，可以不加引号，但是xpath必须加引号
+	//p[@spec='len2 len3']	--一个属性有多个值，必须写全
+	//*[@id='food']	--id为food的元素
+	如果找到的是一个元素，就是webelement对象，如果是多个元素，就是列表吗？
+	
+	//*[@class='cheese']
+		--CSS: .cheese
+		
+子元素选择：
+	当前：div#food
+	选择p元素，它是父节点中第二个p类型的子元素
+		--//p[2]  ?可以等同于//div/p[2]
+		--CSS: p:nth-of-type（2）
+				p:nth-child(2)	--p是父元素的第二个子节点，并不是第二个p类型的子节点
+	
+	//*[@id='food']/p[1]
+		--id是food的元素里面的第一个p类型的子元素
+		--id是food的元素里面的第一个元素，//*[@id='food']/*[1]
+		--//p[1]	--父节点的第一个p类型的子元素
+	
+	//div/*[1]
+		--所有div下面的第一个子节点
+		
+	--最后一个p类型的元素
+		-- //p[last()]
+		-- 倒数第二个p类型的子元素：//p[last()-1]
+			--CSS: p:nth-last-of-type(2)
+		
+	--倒数第二个span类型的子元素
+		-- //span[last()-1]
+		--css: span:nth-last-of-type(2)
+	--倒数第二个任意类型的子元素
+		--//*[last()-1]
+		--css: *:nth-last-of-type(2)
+		
+	--表示某个任意类型的元素，它是父元素的第二个子元素
+		--//*[2]
+		--等价于：//*[position()=2]
+		
+		[position() = 2]的用途？
+			--可以配合符号使用
+			--position()<2
+			--//*[@id='food']//*[position()<3]
+				--id=food里面的所有元素中，position位置小于3的，也就是前两个节点
+			--//*[@id='food']//*[position()>=2] 除了1不要，后面的都要
+			--倒数第一个元素
+				--//*[@id='food']//*[position()>=last()]
+				--last()最后一个元素的索引，最后一个元素不能用-1表示
+			--最后三个元素
+				//*[@id='food']//*[position()>last()-3]
+			--所有的div里面的最后1个元素
+				--//div/*[position()>last()-1]
+
+组选择：
+	--CSS：p,button
+	--XPath: 用|隔开
+		-- //p | //button
+		
+		--$$('p,button')
+			--CSS 按照文档的结构，顺序选择
+		--$x('//p | //button')
+			--xPath 先选择所有的p，再选择所有的button
+		
+兄弟节点：
+	--css： id为food的直接子节点<span>？
+	--css: id为food的元素后面的所有的div
+		#food ~ div
+	--xPath:following-sibling
+		-- 后面的兄弟节点
+		-- //*[@id='food']/following-sibling::div
+		-- following-sibling:: 表明和前面的节点不是父子关系，而是兄弟关系
+	--xPath：preceding-sibling::
+		-- 前面的兄弟节点
+	*****************
+	xpath的有点：方便选择兄弟节点
+	*****************
+	--紧跟在后面的第一个兄弟节点
+		--//*[@id='food']/following-sibling::*[1]
+		--CSS: +
+
+********
+xpath擅长的：
+	--preceding-sibling::
+	--following-sibling::
+	--选择父节点：
+		-- .. 用/和前面隔开
+		--id是food的节点的父节点
+			//*[@id=food]/..
+			
+	--<body>
+		<div>
+			<div>
+			<div>
+			</div>
+			</div>
+		</div>
+	   </body>
+	--选择body里面，div里面的第二个div
+		--css：body>div>div:nth-of-child(2)
+		--xpath: //*[@id='pork']/..
+	********
+	--一般不建议用第几个节点，这样的做法来选择元素，因为这个次序容易发生变化
+	--最好通过id，class这类明显的标志来定位
+	********
+	
+	--选择属于其父元素的第n个子元素（基于所有类型元素）
+		--//*[2]  等价于  //*[position()=2]  等价于 *:nth-child(2)
+		
+		--//*[@id='food']/*[position()=3]
+	
+	--支持 其他的比较操作符
+		--//*[@id='food']/*[position()<3]
+		--//*[@id='food']/*[position()<=3]
+	
+	--选择属于其父元素的倒数第n个子元素
+		--//*[@id='food']/*[last()-1]
+			等价于 //*[@id='food']/*[position()=last()-1]
+		--多选，最后三个
+			--//*[@id='food']/*[position() > last()-3]
+
+--一个题目：
+	food = driver.find_elements_by_id（‘food’）
+	eles = food.find_elements_by_xpath('//p')
+		--如果以//开头，一定是从根目录下开始找
+		--如果要从当前webElement元素里面找，要使用.//
+		--寻找当前节点的父节点，by_xpath('..')

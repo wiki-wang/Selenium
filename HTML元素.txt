@@ -1,0 +1,69 @@
+<head>
+<h1>-<h6>
+<meta />
+</head>
+
+<body>
+<p />
+<a href />
+<img src />
+<table>
+<thead></thead>
+<tr><td></td></tr>
+</table>
+</body>
+
+<div>:块，容器，划分web界面的区域，用于页面布局
+
+web driver 原理：
+自动化程序通过自动化库的调用，发出自动化命令给浏览器驱动，
+浏览器驱动告诉浏览器该干嘛，浏览器做完后，返回给浏览器驱动，
+再返回给程序
+
+
+环境准备:
+--chrome浏览器
+--客户端库（支持各种语言）：
+	--python：pip install selenium （-U）
+--浏览器驱动：	
+	--版本与浏览器有对应关系
+
+	
+重点：选择元素
+id：元素的编号
+	-- find_element_by_id('')
+driver = webdriver.Chrome(r'')
+
+# 打开浏览器页面
+driver.get('http://www.baidu.com')
+
+#根据id找到页面元素
+element_keyword = driver.find_element_by_id
+
+#输入松勤
+element_keyword.send_keys('松勤')
+
+# 找到搜索按钮
+element_search_button = driver.find_element_by_id('su')
+
+#点击该元素
+element_search_button.click()
+
+# 获取第一个搜索结果
+ret = driver.find_element_by_id('1')
+
+ret.text #元素的界面文本
+
+#如果浏览器响应太快，则进行等待
+import time
+time.sleep(2)
+
+
+---寻找元素
+---操作元素
+
+
+作业：
+访问江苏省天气网站
+获取地级市的温度进行分析
+找出温度最低的城市，有多少个打印多少个

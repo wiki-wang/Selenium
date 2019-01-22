@@ -1,0 +1,196 @@
+CSS选择器
+	样式：显示的风格
+
+	内联(inline)样式，写在element里面：
+	<div style='background-color:black;color:white'></div>
+	
+	写在外面，指定哪些元素用哪些样式来显示
+	
+	<style type='text/css'>
+	div {
+	background-color:black;
+	color:white;
+	padding:20px;
+	}
+	</style>
+	# 所有的div都使用以上样式
+	# 花括号前面，用于选择元素，告诉浏览器，这个样式对所有的div都有效
+	******************
+	花括号前面的，可以非常高效，非常复杂，即CSS选择器（selector）
+	******************
+	css选择器浏览器原生支持，高效
+	
+	
+选择元素的方法
+	--根据tag名
+		<style>
+		p {color:red;}
+		</style>
+		# 所有的p都显示为红色
+		
+		<style>
+		h3 {color:blue;}
+		</style>
+	
+	--根据ID  #
+	#food {color：red;}
+	
+	--根据class  .
+	.vegetable{color:red;}
+	.special {color:red;}
+		--如果有两个class属性，用两个.且不能用空格分隔
+		.vegetable.food
+		, 是同时选择两个元素
+		
+	--组合使用
+	标签名是span，同时class是vegetable
+	span.vegetable {color:red;}
+	
+	
+	*******************
+	class=’vegetable food‘ 是两个class属性，中间用空格隔开
+	*******************
+	
+用css选择器选择web元素
+	find_element_by_css_selector
+	find_elements_by_css_selector
+	
+	--根据tag名
+	driver.find_elements_by_css_selector('p')
+	--根据id
+	driver.find_element_by_css_selector('#food')
+	--根据class
+	driver.find_element_by_css_selector('.vegetable')
+
+后代（descendant）选择器
+	--语法：<s1> <s2>
+		--用空格隔开
+		--选择s1元素里面所有的s2元素
+		--可以是直接子节点，也可以不是
+	
+	#choose_car option
+	找出id是choose_car的元素，再在里面找标签是option的元素
+	
+	find_element_by_css_selector('#songListWrapper li')
+	find_element_by_css_selector('.song-title a')
+
+查看环境变量：
+	cmd：echo %path%
+	
+查看某个元素出现的个数：
+	ctrl F
+	
+-- 选择某个元素的直接子元素 >
+	-- #choose_car > option
+	-- footer > pad
+	
+	--也可以是很多级
+		--ul > ol > li > em
+		
+组选择：
+	-- 用逗号隔开
+	-- p, button
+	
+	-- 组合使用
+		-- #food >span, p
+		--#food > span, #food > p
+	--选择id为food的所有子元素
+		-- #food > *
+		
+兄弟节点选择：
+	--紧跟在另一个元素后的元素，二者有相同的父元素
+		--#food + div
+		--#many > div >p.special + p
+	
+	--选择在另一个元素后的元素，二者有相同的父元素
+		--#food ~ div
+		
+属性选择器（***非常常用***）
+	-- *[style]  选择所有有style属性的元素
+	-- p[spec=len2] 选择标签为p的元素，且spec属性值为len2
+	属性值如果有空格，需要加引号，不加引号代码严格等于，只有一个属性
+	--p[spec='len2 len3'] 属性中间有空格，需要加引号
+	--p[spec*=len2] 包含spec=len2 属性的p
+	--p[spec^=len2] 以len2开头
+	--p[spec$=len2] 以len2结尾
+	--p[class=spacial][name=p1] 同时具有多个属性
+		也可以：p.special[name=p1]
+	#food > p:nth-child(4) 第四个（从1开始）
+	#food > p:nth-last-child(2) 倒数
+	#food > p:nth-of-type（n）第n个type
+console 标签中，输入$$(),在括号内输入css表达式
+
+清除元素里面的字符串：
+	--input1.clear()
+
+获取输入框里面的文本：
+	--get_attribute('value')
+
+单选框：
+	--对应的html
+		<input type='radio' name='gender' value='male'> 男<br>
+		<input type='radio' name='gender' value='femal'>女<br>
+	
+	--通过click方法选择
+		input1 = driver.find_element_by_css_selector(input[value=male])
+		input1.click()
+		
+勾选框：
+	--对应的html
+	<input type='checkbox' name='vehicle' value='bike'>我有一辆自行车
+	<input type='checkbox' name='vehicle' value='car' checked>我有一辆汽车
+	
+	--判断是否选中，使用webElment对象的方法，is_selected(),True、False
+	--click方法选择
+		input1 = driver.find_element_by_css_selector(input[value=car])
+		selected = input1.is_selected()
+		if selected:
+			print('car already selected')
+		else:
+			print('car not selected, click on it')
+			input1.click（）
+	--对于勾选框，首先要判断是否选中了
+
+复选框：
+	--对应的html
+		--多选的复选框（带multiple属性）
+			<select multiple>
+				<option value='benz'>奔驰s300</option>
+				<option value='accord'>雅阁</option>
+			</select>
+			--多选需要按住ctrl键
+	
+		--单选的复选框 	
+			<select>
+				<option value='male'>男</option>
+				<option value='female'>女</option>
+			</select>
+			
+	--对于复选框，有Select类
+		--Select类
+		--方法deselect_all
+		--方法select_by_visible_text
+		--导入Select类
+			from selenium.webdriver.support.ui import Select
+			select = Select(driver.find_element_by_id(multi))  #
+			# Select实例化参数为Select类对应的webElement对象
+			select.deselect_all()
+			select.select_by_visible_text('雅阁')
+			select.select_by_visible_text('宝马740')
+			
+			select = Select(driver.find_element_by_id('single'))
+			select.select_by_visible_text('男')
+		
+		--一旦是select类型，就想到用select类
+		
+		51job
+		--点击高级搜索
+		--关键词 python
+		杭州
+		职能类别 加号 计算机软件，高级软件工程师
+		公司性质 外资（欧美）
+		工作年限 1-3年
+		搜索
+	
+	
+	http://www.w3school.com.cn/cssref/css_selectors.asp
