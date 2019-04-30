@@ -1,12 +1,12 @@
-ʲô�����Դ���CSS��XPathѡ������	
-	--�������塣���ȸ���idѡ�����û��id���᲻��Ѱ���ϲ�id��������ʱ��ʹ�úܶ�㣬�������д���ѡ��
-	--·��Խ�����㼶Խ�࣬����䶯�Ŀ����Ծ�Խ��
+什么不用自带的CSS、XPath选择器？	
+	--功能死板。优先根据id选择，如果没有id，会不断寻找上层id，导致有时候使用很多层，甚至还有次序选择。
+	--路径越长，层级越多，代码变动的可能性就越大
 	
 
-�쳣����ȷ��chrome�����˳�
-	�л����µĴ������������
+异常捕获，确保chrome进程退出
+	切换到新的窗口里面操作：
 
-	try��
+	try：
 		driver.get('http://www.vmall.com')
 		
 		t1 = driver.find_element_by_id('b1')
@@ -17,31 +17,31 @@
 		print traceback.format_exc()
 	finally:
 		driver.quit()
-	--��driver����֮����в�����Ϊ���û�����ɳɹ���Ҳ���޷��˳��ˡ�
+	--在driver生成之后进行捕获，因为如果没有生成成功，也就无法退出了。
 
-���ڶ���
+窗口冻结
 	--console: setTimeout(function(){debugger},3000)
 	
---�����Ͽ�������Ԫ�أ�Ҳ���ɲ��������һ��Ҫ�������ᱨԪ�ز��ɼ��쳣
+--界面上看不见的元素，也不可操作。如果一定要操作，会报元素不可见异常
 
---��������ͣ���ڽ�����
-	--ͨ��ActionChains��
+--如何让鼠标停留在界面上
+	--通过ActionChains类
 	
-	���룺
+	代码：
 	from selenium.webdriver.common.action_chains import ActionChains
 	
 	ac = ActionChains(driver)
 	ac.move_to_element(driver.find_element_by_id()).perform()
 	
-	--ActionChains��Ĳ��������صĶ���self�������Կ���������������һ������һ����
+	--ActionChains类的操作，返回的都是self对象，所以可以连续操作。像一个链子一样。
 	acInstance.action1().action2().actionN().perform()
 	
-	--����perform()������������ִ�ж���
-	--����ƶ���λ�ã�����������Խ��ߵ����ĵ�
-	--�ƶ���ĳ��Ԫ������
+	--调用perform()，才是真正地执行动作
+	--鼠标移动的位置，是所在区域对角线的中心点
+	--移动到某个元素上面
 		ActionChains(driver).move_to_element(ele).perform()
 	
-	--һ�����ӣ�
+	--1简单的例子：
 		ac = ActionChains(driver)
 		
 		t1 = driver.find_element_by_id('t1')
@@ -50,59 +50,78 @@
 		
 		ac.click(t1).send_keys('1').click(t2).send_keys('2').click(t3).send_keys('3').perform()
 		
-	--�漰�����⶯��ʱ������ʹ��ActionChains��
-
--- ����Ԫ������ײ�����Ҫ�����������Ļ���Ҳ����ֱ�Ӳ��������������
+	--涉及到特殊动作时，可以使用ActionChains类
 	
---�ı䴰�ڴ�С
-	--driver.set_window_size(1000,size[height])
-		���������ڵĿ��Ⱥ͸߶ȣ��߶Ȳ��䣩
-	--���ֻ��ı���ȣ��߶ȱ��ֲ��䣬���Ի�ȡԭ���ĸ߶ȣ�		
-		--size = driver.get_window_size()
-		-- ���ص���һ���ֵ䣬�߶�: , ���ȡ��߶ȼ�ֵΪheight�����ȼ�ֵΪwidth��
+	2 复杂的例子：
+		from selenium.webdriver.common.action_chains import ActionChains
 		
-	���룺	
+		# 页面有js的弹窗，过几秒钟会自动隐藏，所以睡一下
+		sleep(9)
+		
+		ac = ActionChains(driver)
+		ac.move_to_element(driver.find_element_by_css_selector('a[class="userName"]')).perform()
+
+		driver.find_element_by_css_selector('a[href="/logout?forword="]').click()
+
+		driver.refresh()
+
+		sleep(5)
+
+		driver.get('http://www.darryring.com/goods/2')
+
+		sleep(3)
+		
+-- 界面元素在最底部，需要滑动滚动条的话，也可以直接操作，比如输入框。
+	
+--改变窗口大小
+	--driver.set_window_size(1000,size[height])
+		参数：窗口的宽度和高度（高度不变）
+	--如果只想改变宽度，高度保持不变，可以获取原来的高度：		
+		--size = driver.get_window_size()
+		-- 返回的是一个字典，高度: , 宽度。高度键值为height，宽度键值为width。
+		
+	代码：	
 		size = driver.get_window_size
 		driver.set_window_size(1400,size['height'])
-	--���
+	--最大化
 		driver.maximize_window()
-	--��С��
+	--最小化
 		driver.minimize_window()
 		
--- ǰ�˵ı�����ԣ�����javascript��js����pythonһ����
-���Զ�̬�ظı�ҳ�����ݣ�������������ǰ������Ҫ��������ǳ��ֽ��棬js������һЩ�������ݸı��Ч�����������棬��js���õ�һ��������
+-- 前端的编程语言，就是javascript，js，和python一样。
+可以动态地改变页面内容，发出网络请求。前端最重要的任务就是呈现界面，js经常做一些界面内容改变的效果。滚动界面，是js内置的一个方法。
 
---console������ʽ��������
-	-- window.scrollBy()����
-		--������������������������
+--console：交互式地命令行
+	-- window.scrollBy()方法
+		--参数：横向和纵向滚动的像素
 	
-	���ӣ�
-		����200
-		����0
+	例子：
+		横向：200
+		纵向：0
 	
-	���������
+	横向滚动：
 		window.scrollBy(200,0)
-			--���ҹ���200
+			--向右滚动200
 	
-	���������
+	纵向滚动：
 		window.scrollBy(0,500)
 		window.scrollBy(0,-500)
-			--���Ϲ���
+			--向上滚动
 	
-	��python�е�д����
+	在python中的写法：
 		driver.execute_script('window.scrollBy(250,0)')
-		--python ����ͨ�����������������������͸�����������������������Ҫִ��java script���룬�����ǲ���������ַ������ݡ�������ͻ�ȥִ����
+		--python 程序通过浏览器驱动，把这条命令发送给浏览器，告诉浏览器，我们要执行java script代码，打码是参数里面的字符串内容。浏览器就会去执行它
 		
-	�����е�java script�ű���������ͨ��driver.execute_script()����������ȥִ��
+	想运行的java script脚本，都可以通过driver.execute_script()命令，让浏览器去执行
 	
-	--������ײ�
-		--���ִ�һ�㣬�Ϳ��Թ�������ײ�
+	--滚到最底部
+		--数字大一点，就可以滚动到最底部
 
-java script �ֲ����ƣ�����ͬ������ҳ�����¼��ء�
-	--���»���֮�󣬶�������²�����ԭ������Ķ����Ѿ�����
-	--����취�����²��ң���ֹ����
+java script 局部绘制，不等同于整个页面重新加载。
+	--重新绘制之后，对象会重新产生，原来保存的对象已经过期
+	--解决办法：重新查找，防止过期
 	
-	--���룺
+	--代码：
 		while True:
 			delButtons = driver.find_elements_by_css_selector('button[ng-click^=delOne]')
 			
@@ -115,14 +134,14 @@ java script �ֲ����ƣ�����ͬ������ҳ�����¼��ء�
 			
 			time.sleep()
 
-���Զ�����
-	--ͼ�ν����Զ������Ѷȣ�
-		--ģ����
-		--�����
+半自动化：
+	--图形界面自动化的难度：
+		--模拟难
+		--检查难
 		
-	--���Զ��� �Ĳ���������ʾ��beep����ȥ��
+	--难自动化 的操作，都提示（beep）人去做
 		import winsound
 		winsound.Beep(1500, 3000)
-		���ಿ�֣��Զ��� ȥ��
+		其余部分：自动化 去做
 	
-	�Զ�����Ŀ�ģ���߲���Ч��
+	自动化的目的：提高测试效率
